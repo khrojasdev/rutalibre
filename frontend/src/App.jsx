@@ -3,8 +3,19 @@ import './App.css'
 
 // MapLibre se carga desde CDN en index.html (su build de CDN trae el worker
 // incrustado, evitando el problema de bundling del worker en Vite/Cloudflare).
-const maplibregl = window.maplibregl
+// Se accede como window.maplibregl cuando ya cargó (ver waitForMapLibre).
 
+function waitForMapLibre() {
+  return new Promise((resolve) => {
+    if (window.maplibregl) return resolve(window.maplibregl)
+    const t = setInterval(() => {
+      if (window.maplibregl) {
+        clearInterval(t)
+        resolve(window.maplibregl)
+      }
+    }, 50)
+  })
+}
 
 const API = import.meta.env.VITE_API_URL || '' // en Vercel/Cloudflare apunta a Render
 const EMPTY = { type: 'FeatureCollection', features: [] }
@@ -28,40 +39,50 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Inicializar mapa
+  // Inicializar mapa (espera a que MapLibre cargue desde el CDN)
   useEffect(() => {
-    const map = new maplibregl.Map({
-      container: mapDiv.current,
-      style: 'https://tiles.openfreemap.org/styles/liberty',
-      center: [-71.61, -33.045],
-      zoom: 12,
-      attributionControl: { compact: true },
-    })
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+    let map
+    let cancelled = false
 
-    map.on('load', () => {
-      map.addSource('car', { type: 'geojson', data: EMPTY })
-      map.addSource('truck', { type: 'geojson', data: EMPTY })
-      map.addSource('avoided', { type: 'geojson', data: EMPTY })
-      map.addLayer({
-        id: 'car', type: 'line', source: 'car',
-        layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#7a8794', 'line-width': 4, 'line-dasharray': [1.5, 1.8] },
+    waitForMapLibre().then((maplibregl) => {
+      if (cancelled) return
+      map = new maplibregl.Map({
+        container: mapDiv.current,
+        style: 'https://tiles.openfreemap.org/styles/liberty',
+        center: [-71.61, -33.045],
+        zoom: 12,
+        attributionControl: { compact: true },
       })
-      map.addLayer({
-        id: 'avoided', type: 'line', source: 'avoided',
-        layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#e5484d', 'line-width': 7, 'line-opacity': 0.85 },
+      map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
+
+      map.on('load', () => {
+        map.addSource('car', { type: 'geojson', data: EMPTY })
+        map.addSource('truck', { type: 'geojson', data: EMPTY })
+        map.addSource('avoided', { type: 'geojson', data: EMPTY })
+        map.addLayer({
+          id: 'car', type: 'line', source: 'car',
+          layout: { 'line-cap': 'round', 'line-join': 'round' },
+          paint: { 'line-color': '#7a8794', 'line-width': 4, 'line-dasharray': [1.5, 1.8] },
+        })
+        map.addLayer({
+          id: 'avoided', type: 'line', source: 'avoided',
+          layout: { 'line-cap': 'round', 'line-join': 'round' },
+          paint: { 'line-color': '#e5484d', 'line-width': 7, 'line-opacity': 0.85 },
+        })
+        map.addLayer({
+          id: 'truck', type: 'line', source: 'truck',
+          layout: { 'line-cap': 'round', 'line-join': 'round' },
+          paint: { 'line-color': '#2f6fed', 'line-width': 5 },
+        })
       })
-      map.addLayer({
-        id: 'truck', type: 'line', source: 'truck',
-        layout: { 'line-cap': 'round', 'line-join': 'round' },
-        paint: { 'line-color': '#2f6fed', 'line-width': 5 },
-      })
+
+      mapRef.current = map
     })
 
-    mapRef.current = map
-    return () => map.remove()
+    return () => {
+      cancelled = true
+      if (map) map.remove()
+    }
   }, [])
 
   // Clic 1 = origen, clic 2 = destino, clic 3 = reiniciar
@@ -92,7 +113,7 @@ export default function App() {
       const el = document.createElement('div')
       el.className = `pin pin--${cls}`
       markers.current.push(
-        new maplibregl.Marker({ element: el, anchor: 'bottom' })
+        new window.maplibregl.Marker({ element: el, anchor: 'bottom' })
           .setLngLat([p.lon, p.lat]).addTo(map)
       )
     }
@@ -125,7 +146,7 @@ export default function App() {
       const coords = data.truck.geometry.coordinates
       const bounds = coords.reduce(
         (b, c) => b.extend(c),
-        new maplibregl.LngLatBounds(coords[0], coords[0])
+        new window.maplibregl.LngLatBounds(coords[0], coords[0])
       )
       map.fitBounds(bounds, { padding: 70, duration: 600 })
     } catch (e) {
