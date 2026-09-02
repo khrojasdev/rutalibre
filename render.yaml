@@ -1,0 +1,19 @@
+# Blueprint de Render — despliega el backend FastAPI en el free tier.
+# En Render: New → Blueprint → conecta este repo. Render leerá este archivo.
+# Las variables marcadas sync:false se piden en el panel (no van en el repo).
+services:
+  - type: web
+    name: rutalibre-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: ORS_API_KEY
+        sync: false          # pegar la key de openrouteservice en el panel
+      - key: DATABASE_URL
+        sync: false          # pegar el connection string de Neon en el panel
+      - key: ALLOWED_ORIGINS
+        sync: false          # p. ej. https://rutalibre.pages.dev

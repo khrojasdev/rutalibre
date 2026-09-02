@@ -1,0 +1,167 @@
+:root {
+  --ink: #12161c;
+  --panel: #1a1f27;
+  --surface: #232b35;
+  --surface-2: #2c3541;
+  --line: #364150;
+  --text: #eef2f6;
+  --muted: #93a1b0;
+  --route-truck: #2f6fed;
+  --route-car: #7a8794;
+  --route-avoid: #e5484d;
+  --signal: #f4a723;
+  --focus: #6ea8ff;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html, body, #root { height: 100%; }
+body {
+  font-family: 'Barlow', system-ui, sans-serif;
+  color: var(--text);
+  background: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { display: flex; height: 100vh; }
+
+/* ---------- Panel de despacho ---------- */
+.panel {
+  width: 360px;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 22px 22px 32px;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand__mark {
+  font-size: 30px; line-height: 1; color: var(--signal);
+  transform: translateY(-1px);
+}
+.brand__name {
+  font-family: 'Barlow Semi Condensed', 'Barlow', sans-serif;
+  font-weight: 700; font-size: 26px; letter-spacing: 0.2px;
+}
+.brand__tag { color: var(--muted); font-size: 13px; margin-top: 1px; }
+
+/* ---------- Waypoints ---------- */
+.waypoints { list-style: none; display: grid; gap: 2px; position: relative; }
+.waypoints li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; font-size: 14px; color: var(--muted);
+  background: var(--surface); border: 1px solid var(--line);
+}
+.waypoints li:first-child { border-radius: 8px 8px 0 0; border-bottom: none; }
+.waypoints li:last-child { border-radius: 0 0 8px 8px; }
+.waypoints li.is-set { color: var(--text); }
+.waypoints__dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.waypoints__dot--origin { background: #34c76a; }
+.waypoints__dot--dest { background: var(--route-avoid); }
+
+.step { font-size: 13px; color: var(--signal); margin-top: -8px; }
+
+/* ---------- Gauges de dimensiones ---------- */
+.gauges { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gauge { display: flex; flex-direction: column; gap: 5px; }
+.gauge__label { font-size: 12px; color: var(--muted); font-weight: 500; }
+.gauge__field {
+  display: flex; align-items: center;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; overflow: hidden;
+  transition: border-color 0.15s;
+}
+.gauge__field:focus-within { border-color: var(--focus); }
+.gauge__field input {
+  width: 100%; padding: 10px 4px 10px 12px;
+  background: transparent; border: 0; color: var(--text);
+  font-family: 'Barlow Semi Condensed', sans-serif;
+  font-weight: 600; font-size: 19px;
+}
+.gauge__field input:focus { outline: none; }
+.gauge__field input::-webkit-outer-spin-button,
+.gauge__field input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.gauge__field input[type=number] { -moz-appearance: textfield; }
+.gauge__unit { padding-right: 12px; color: var(--muted); font-size: 13px; }
+
+/* ---------- Acciones ---------- */
+.actions { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.btn {
+  padding: 12px 16px; border-radius: 8px; border: 1px solid transparent;
+  font-family: inherit; font-weight: 600; font-size: 15px; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.btn--primary { background: var(--route-truck); color: #fff; }
+.btn--primary:hover:not(:disabled) { background: #2a63d4; }
+.btn--ghost { background: transparent; color: var(--muted); border-color: var(--line); }
+.btn--ghost:hover:not(:disabled) { color: var(--text); border-color: var(--muted); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- Alertas ---------- */
+.alert {
+  padding: 11px 13px; border-radius: 8px; font-size: 13px;
+  background: rgba(229, 72, 77, 0.12);
+  border: 1px solid rgba(229, 72, 77, 0.35); color: #ffb4b7;
+}
+
+/* ---------- Readout de resultados ---------- */
+.readout { display: grid; gap: 14px; padding-top: 4px; border-top: 1px solid var(--line); }
+.readout__rows { display: grid; gap: 1px; background: var(--line); border-radius: 8px; overflow: hidden; }
+.readout__row {
+  display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+  padding: 11px 13px; background: var(--surface);
+  font-family: 'Barlow Semi Condensed', sans-serif; font-weight: 600; font-size: 16px;
+}
+.tag {
+  font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px;
+  font-family: 'Barlow', sans-serif; letter-spacing: 0.3px;
+}
+.tag--truck { background: rgba(47, 111, 237, 0.18); color: #8fb4ff; }
+.tag--car { background: rgba(122, 135, 148, 0.2); color: #b7c2ce; }
+.tag--avoided { background: rgba(229, 72, 77, 0.16); color: #ff9a9d; }
+
+.cost {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 12px 14px; border-radius: 8px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--line);
+}
+.cost__label { font-size: 12px; color: var(--muted); }
+.cost__value {
+  font-family: 'Barlow Semi Condensed', sans-serif; font-weight: 700;
+  font-size: 22px; color: var(--signal);
+}
+
+.readout__note { font-size: 13px; color: var(--muted); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.readout__reports { font-size: 12.5px; color: #8fb4ff; }
+
+/* ---------- Mapa ---------- */
+.map { flex: 1; height: 100%; }
+
+/* Marcadores custom */
+.pin { width: 18px; height: 18px; border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg); border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+.pin--origin { background: #34c76a; }
+.pin--dest { background: var(--route-avoid); }
+
+.maplibregl-ctrl-attrib { font-size: 10px; }
+
+/* ---------- Responsive: panel arriba en móvil ---------- */
+@media (max-width: 720px) {
+  .app { flex-direction: column; }
+  .panel {
+    width: 100%; height: auto; max-height: 55vh;
+    border-right: none; border-bottom: 1px solid var(--line);
+  }
+  .map { flex: 1; min-height: 45vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}

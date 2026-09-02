@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Node / Vite
+node_modules/
+frontend/dist/
+
+# Entorno (NUNCA subir credenciales)
+.env
+backend/.env
+
+# SO / editores
+.DS_Store
+.vscode/
+.idea/
