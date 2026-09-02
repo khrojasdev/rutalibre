@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import * as maplibregl from 'maplibre-gl'
-import 'maplibre-gl/dist/maplibre-gl.css'
 import './App.css'
+
+// MapLibre se carga desde CDN en index.html (su build de CDN trae el worker
+// incrustado, evitando el problema de bundling del worker en Vite/Cloudflare).
+const maplibregl = window.maplibregl
+
 
 const API = import.meta.env.VITE_API_URL || '' // en Vercel/Cloudflare apunta a Render
 const EMPTY = { type: 'FeatureCollection', features: [] }
